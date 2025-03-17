@@ -1,0 +1,49 @@
+{
+  "mcpServers": {
+    "github.com/executeautomation/mcp-playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server"],
+      "autoApprove": ["playwright_navigate", "playwright_screenshot", "playwright_close"],
+      "disabled": false
+    },
+    "github.com/modelcontextprotocol/servers/tree/main/src/time": {
+      "command": "node",
+      "args": ["/path/to/time-server/index.js"],
+      "autoApprove": ["get_current_time", "format_time"],
+      "disabled": false
+    },
+    "github.com/Garoth/sleep-mcp": {
+      "command": "node",
+      "args": ["/path/to/sleep-mcp/build/index.js"],
+      "autoApprove": ["sleep"],
+      "disabled": false
+    },
+    "github.com/custom/unknown-server": {
+      "command": "node",
+      "args": ["/path/to/unknown-server/index.js"],
+      "autoApprove": ["custom_tool1", "custom_tool2"],
+      "disabled": false
+    },
+    "disabled-server": {
+      "command": "node",
+      "args": ["/path/to/disabled/index.js"],
+      "autoApprove": [],
+      "disabled": true
+    },
+    "server-without-auto-approve": {
+      "command": "node",
+      "args": ["/path/to/server/index.js"],
+      "disabled": false
+    },
+    "server-with-env-vars": {
+      "command": "node",
+      "args": ["/path/to/server/index.js"],
+      "autoApprove": ["env_tool"],
+      "env": {
+        "API_KEY": "test-api-key",
+        "DEBUG": "true"
+      },
+      "disabled": false
+    }
+  }
+}

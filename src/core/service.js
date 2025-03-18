@@ -173,11 +173,11 @@ export class MCPWatcherService extends EventEmitter {
   async updateConfig(configUpdate) {
     try {
       // Validate file paths
-      if (configUpdate.settingsPath && !configUpdate.settingsPath.endsWith('.json')) {
+      if (configUpdate.settingsPath && path.extname(configUpdate.settingsPath).toLowerCase() !== '.json') {
         throw new Error('Settings path must be a JSON file');
       }
       
-      if (configUpdate.markdownPath && !configUpdate.markdownPath.endsWith('.md')) {
+      if (configUpdate.markdownPath && path.extname(configUpdate.markdownPath).toLowerCase() !== '.md') {
         throw new Error('Markdown path must be a Markdown file');
       }
       

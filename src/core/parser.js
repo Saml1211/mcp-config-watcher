@@ -243,8 +243,9 @@ export class MCPSettingsParser {
         
         // Also check for partial matches in the path components
         // This helps with matching servers with similar paths but different domains
-        const serverParts = serverId.split('/');
-        const mappedParts = mappedServerId.split('/');
+        // Use path.sep to handle both forward and backslashes correctly
+        const serverParts = serverId.split(/[/\\]/);
+        const mappedParts = mappedServerId.split(/[/\\]/);
         
         // Check if the last parts match (e.g., "time" in ".../src/time")
         if (serverParts.length > 0 && mappedParts.length > 0 && 
@@ -271,7 +272,8 @@ export class MCPSettingsParser {
     // Priority 4: If we still don't have any tools, generate a reasonable default
     if (tools.length === 0) {
       // Extract server name from ID for a reasonable default
-      const serverName = serverId.split('/').pop().replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
+      // Use path.basename to extract the last part of the path in a cross-platform way
+      const serverName = path.basename(serverId).replace(/[^a-zA-Z0-9_]/g, '_').toLowerCase();
       
       // Generate a list of likely tools based on the server name
       const likelyTools = [];

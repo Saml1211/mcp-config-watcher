@@ -31,7 +31,7 @@ export class MCPConfigWatcher extends EventEmitter {
     }
 
     try {
-      const settingsPath = this.config.paths.settings;
+      const settingsPath = path.normalize(this.config.paths.settings);
       
       // Ensure the settings file exists
       if (!await fs.pathExists(settingsPath)) {
@@ -51,9 +51,9 @@ export class MCPConfigWatcher extends EventEmitter {
 
       // Set up event handlers
       this.watcher
-        .on('change', async (path) => {
-          this.emit('info', `Change detected in ${path}`);
-          await this.handleFileChange(path);
+        .on('change', async (filePath) => {
+          this.emit('info', `Change detected in ${filePath}`);
+          await this.handleFileChange(filePath);
         })
         .on('error', (error) => {
           this.emit('error', `Watcher error: ${error}`);
@@ -109,8 +109,11 @@ export class MCPConfigWatcher extends EventEmitter {
    */
   async handleFileChange(filePath) {
     try {
+      // Normalize the file path for cross-platform compatibility
+      const normalizedPath = path.normalize(filePath);
+      
       // Compare file hash to avoid duplicate processing
-      const currentHash = await this.getFileHash(filePath);
+      const currentHash = await this.getFileHash(normalizedPath);
       if (this.lastHash === currentHash) {
         this.emit('info', 'File content unchanged, skipping update');
         return;
@@ -120,7 +123,7 @@ export class MCPConfigWatcher extends EventEmitter {
       this.lastUpdated = new Date();
       
       // Emit change event for processors to handle
-      this.emit('fileChanged', filePath);
+      this.emit('fileChanged', normalizedPath);
     } catch (error) {
       this.emit('error', `Error handling file change: ${error.message}`);
     }
@@ -134,6 +137,9 @@ export class MCPConfigWatcher extends EventEmitter {
    */
   async getFileHash(filePath) {
     try {
+      // Normalize the file path for cross-platform compatibility
+      const normalizedPath = path.normalize(filePath);
+      
       // Maximum retry attempts
       const maxRetries = 3;
       let attempts = 0;
@@ -144,7 +150,7 @@ export class MCPConfigWatcher extends EventEmitter {
           attempts++;
           
           // Read file content
-          const content = await fs.readFile(filePath, 'utf8');
+          const content = await fs.readFile(normalizedPath, 'utf8');
           
           // Create SHA256 hash of content
           const hashSum = crypto.createHash('sha256');
@@ -184,7 +190,7 @@ export class MCPConfigWatcher extends EventEmitter {
     }
     
     try {
-      const filePath = this.config.paths.settings;
+      const filePath = path.normalize(this.config.paths.settings);
       
       // Check if file exists before trying to process it
       if (!await fs.pathExists(filePath)) {

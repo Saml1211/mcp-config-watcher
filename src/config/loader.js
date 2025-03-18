@@ -24,8 +24,32 @@ export async function loadConfig(configPath = DEFAULT_CONFIG_PATH) {
       return getDefaultConfig();
     }
     
-    const configFile = await fs.readFile(configPath, 'utf8');
-    return YAML.parse(configFile);
+    let configFile = await fs.readFile(configPath, 'utf8');
+    
+    // Pre-process the YAML content on Windows to handle backslashes in paths
+    // by converting them to forward slashes temporarily for YAML parsing
+    if (process.platform === 'win32') {
+      // Use regex with negative lookahead to escape backslashes that aren't already escaped
+      // This modifies only actual Windows path backslashes while preserving YAML escapes
+      configFile = configFile.replace(/\\(?!\\)/g, '\\\\');
+    }
+    
+    const config = YAML.parse(configFile);
+    
+    // Normalize paths in the loaded config to ensure they use proper platform-specific separators
+    if (config.paths) {
+      if (config.paths.settings) {
+        config.paths.settings = config.paths.settings.split(/[\/\\]/).join(path.sep);
+      }
+      if (config.paths.markdown) {
+        config.paths.markdown = config.paths.markdown.split(/[\/\\]/).join(path.sep);
+      }
+    }
+    if (config.service && config.service.logFile) {
+      config.service.logFile = config.service.logFile.split(/[\/\\]/).join(path.sep);
+    }
+    
+    return config;
   } catch (error) {
     console.error('Error loading config:', error);
     return getDefaultConfig();
@@ -52,7 +76,35 @@ export async function saveConfig(config, configPath = DEFAULT_CONFIG_PATH) {
     }));
     
     // Use JSON.stringify and then parse to ensure clean object
-    const configYaml = YAML.stringify(configToSave, { quotingType: '"', lineWidth: 0 });
+    // Ensure all paths use proper path separators for the current platform
+    if (configToSave.paths) {
+      if (configToSave.paths.settings) {
+        configToSave.paths.settings = configToSave.paths.settings.split(/[\/\\]/).join(path.sep);
+      }
+      if (configToSave.paths.markdown) {
+        configToSave.paths.markdown = configToSave.paths.markdown.split(/[\/\\]/).join(path.sep);
+      }
+    }
+    if (configToSave.service && configToSave.service.logFile) {
+      configToSave.service.logFile = configToSave.service.logFile.split(/[\/\\]/).join(path.sep);
+    }
+    
+    // Escape backslashes in Windows paths before stringifying to YAML
+    if (process.platform === 'win32') {
+      if (configToSave.paths) {
+        if (configToSave.paths.settings) {
+          configToSave.paths.settings = configToSave.paths.settings.replace(/\\/g, '\\\\');
+        }
+        if (configToSave.paths.markdown) {
+          configToSave.paths.markdown = configToSave.paths.markdown.replace(/\\/g, '\\\\');
+        }
+      }
+      if (configToSave.service && configToSave.service.logFile) {
+        configToSave.service.logFile = configToSave.service.logFile.replace(/\\/g, '\\\\');
+      }
+    }
+    
+    const configYaml = YAML.stringify(configToSave, { quotingType: '\"', lineWidth: 0 });
     await fs.writeFile(configPath, configYaml, 'utf8');
     return true;
   } catch (error) {
@@ -66,10 +118,20 @@ export async function saveConfig(config, configPath = DEFAULT_CONFIG_PATH) {
  * @returns {Object} Default config object
  */
 function getDefaultConfig() {
+  // Determine platform-specific default paths
+  const homeDir = process.env.HOME || process.env.USERPROFILE || '';
+  
+  // Create platform-agnostic paths using path.join
+  const settingsPath = process.platform === 'win32'
+    ? path.join(homeDir, 'AppData', 'Roaming', 'Code', 'User', 'globalStorage', 'saoudrizwan.claude-dev', 'settings', 'cline_mcp_settings.json')
+    : path.join(homeDir, 'Library', 'Application Support', 'Code', 'User', 'globalStorage', 'saoudrizwan.claude-dev', 'settings', 'cline_mcp_settings.json');
+  
+  const markdownPath = path.join(homeDir, 'repos', 'custom', 'mcp_servers_and_tools.md');
+  
   return {
     paths: {
-      settings: "/Users/samlyndon/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
-      markdown: "/Users/samlyndon/repos/custom/mcp_servers_and_tools.md"
+      settings: settingsPath,
+      markdown: markdownPath
     },
     watcher: {
       pollInterval: 1000,
@@ -82,7 +144,7 @@ function getDefaultConfig() {
       autoStart: true,
       port: 8080,
       logLevel: "info",
-      logFile: ""
+      logFile: path.join('.', 'logs', 'app.log')
     },
     notifications: {
       enabled: true,

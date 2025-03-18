@@ -1,6 +1,6 @@
 paths:
-  settings: /Users/samlyndon/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json
-  markdown: /Users/samlyndon/repos/custom/mcp_servers_and_tools_1.md
+  settings: "C:\Users\SamLyndon\AppData\Roaming\Code\User\globalStorage\rooveterinaryinc.roo-cline\settings\cline_mcp_settings.json"
+  markdown: "C:\Users\SamLyndon\Desktop\cline_mcp_settings.md"
 watcher:
   pollInterval: 1000
   awaitWriteFinish:

@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 import { loadConfig } from './config/loader.js';
 import MCPWatcherService from './core/service.js';
+import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
 
-let service = null;
-
+// Declare service variable at global scope
+let service;
 /**
  * Initialize the MCP Config Watcher service
  * @returns {Promise<MCPWatcherService>} Service instance
@@ -41,8 +43,8 @@ function setupEventHandlers(service) {
   service.on('stopped', (message) => console.log(`[STOPPED] ${message}`));
   service.on('updated', (data) => {
     console.log(`[UPDATED] Generated markdown documentation`);
-    console.log(`  - Settings: ${data.settingsPath}`);
-    console.log(`  - Markdown: ${data.markdownPath}`);
+    console.log(`  - Settings: ${path.normalize(data.settingsPath)}`);
+    console.log(`  - Markdown: ${path.normalize(data.markdownPath)}`);
     console.log(`  - Time: ${data.timestamp.toLocaleString()}`);
   });
   
@@ -60,7 +62,7 @@ function setupEventHandlers(service) {
 }
 
 // If this is the main script being run, initialize the service
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   console.log('Starting MCP Config Watcher...');
   await initService();
   console.log('Service started. Press Ctrl+C to stop.');

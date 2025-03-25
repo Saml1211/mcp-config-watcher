@@ -6,16 +6,17 @@
 # 1. (Optional) Set environment variables
 # export OPENAI_API_KEY="YOUR_OPENAI_API_KEY"
 
-# 2. Navigate to the project directory
-cd /Users/samlyndon/repos/custom/mcp-config-watcher
+# 2. Navigate to the project directory (using the script's location)
+cd "$(dirname "$0")"
 
 # 3. Start the MCP watcher in the background
-mcp-watcher start &
+node bin/mcp-watcher.js start &
 
-# 4. Also start the web interface in the background
-npm run web &
+# 4. Start the web interface in the background
+node src/interfaces/web/index.js &
 
-# 5. Open the default browser to the UI
+# 5. Open the default browser to the UI (wait a moment for server to start)
+sleep 2
 open "http://localhost:8080"
 
 # 6. Keep the shell open so logs remain visible

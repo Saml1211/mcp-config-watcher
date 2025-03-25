@@ -72,7 +72,9 @@ export async function saveConfig(config, configPath = DEFAULT_CONFIG_PATH) {
       },
       watcher: config.watcher,
       service: config.service,
-      notifications: config.notifications
+      notifications: config.notifications,
+      discovery: config.discovery,
+      ai: config.ai
     }));
     
     // Use JSON.stringify and then parse to ensure clean object
@@ -150,6 +152,19 @@ function getDefaultConfig() {
       enabled: true,
       onSuccess: true,
       onError: true
+    },
+    discovery: {
+      enabled: true,
+      timeout: 10000,
+      cache: true
+    },
+    ai: {
+      enabled: false,
+      fallbackToAi: true,
+      cache: {
+        enabled: true,
+        maxAge: 86400000 // 24 hours
+      }
     }
   };
 }

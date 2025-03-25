@@ -7,17 +7,20 @@
 :: Replace or remove if not needed:
 :: set OPENAI_API_KEY=YOUR_OPENAI_API_KEY
 
-:: 2. Navigate to the project directory
-cd /Users/samlyndon/repos/custom/mcp-config-watcher
+:: 2. Navigate to the project directory (using the script's location)
+cd /d "%~dp0"
 
 :: 3. Start the watcher service (synchronously)
-call mcp-watcher start
+call node bin/mcp-watcher.js start
 
 :: 4. Start the web interface in a new window (asynchronously)
-start cmd /c "npm run web"
+start cmd /c "node src/interfaces/web/index.js"
 
-:: 5. Open the default browser to the web interface
+:: 5. Wait a moment for the server to start
+timeout /t 2 /nobreak > nul
+
+:: 6. Open the default browser to the web interface
 start http://localhost:8080
 
-:: 6. Keep the window open (optional)
+:: 7. Keep the window open (optional)
 pause

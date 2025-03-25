@@ -51,6 +51,12 @@ export class MCPWatcherService extends EventEmitter {
     this.generator.on('debug', (message) => this.emit('debug', message));
     this.generator.on('error', (message) => this.emit('error', message));
     
+    // Forward parser events
+    this.parser.on('info', (message) => this.emit('info', message));
+    this.parser.on('error', (message) => this.emit('error', message));
+    this.parser.on('warning', (message) => this.emit('warning', message));
+    this.parser.on('debug', (message) => this.emit('debug', message));
+    
     // Handle file changes
     this.watcher.on('fileChanged', async (filePath) => {
       try {
@@ -109,17 +115,26 @@ export class MCPWatcherService extends EventEmitter {
       // Parse MCP settings
       this.emit('info', 'Parsing MCP settings');
       
-      // Use AI-powered parsing if enabled
+      // Read the settings file
+      const fileContent = await fs.readFile(filePath, 'utf8');
+      const mcpSettings = JSON.parse(fileContent);
+      
+      // Use direct tool discovery if enabled
       let parsedData;
-      if (this.config.ai?.enabled) {
+      if (this.config.discovery?.enabled !== false) {
+        this.emit('info', 'Using direct tool discovery');
+        // Use direct tool discovery
+        parsedData = await this.parser.extractServerInfoWithDiscovery(mcpSettings);
+      } 
+      // Use AI-powered discovery if direct discovery is disabled but AI is enabled
+      else if (this.config.ai?.enabled) {
         this.emit('info', 'Using AI-powered tool discovery');
-        // Read the settings file
-        const fileContent = await fs.readFile(filePath, 'utf8');
-        const mcpSettings = JSON.parse(fileContent);
-        
         // Use AI-powered extraction
         parsedData = await this.parser.extractServerInfoWithAI(mcpSettings);
-      } else {
+      } 
+      // Fall back to regular parsing
+      else {
+        this.emit('info', 'Using basic server info extraction');
         // Use regular parsing
         parsedData = await this.parser.parse(filePath);
       }

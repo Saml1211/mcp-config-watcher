@@ -244,6 +244,7 @@ async function generateHtml() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MCP Config Watcher</title>
   <style>
+    /* Light mode (default) variables */
     :root {
       --primary-color: #4a6fa5;
       --secondary-color: #5d93d1;
@@ -253,26 +254,41 @@ async function generateHtml() {
       --info-color: #17a2b8;
       --dark-color: #343a40;
       --light-color: #f8f9fa;
+      --text-color: #343a40;
       --background-color: #f5f7fa;
       --card-bg: #ffffff;
+      --border-color: #eee;
+      --code-bg: #f5f5f5;
+      --code-color: #333;
     }
 
+    /* Dark mode variables */
     [data-theme="dark"] {
-      --background-color: #1a1a1a;
-      --card-bg: #2d2d2d;
-      --dark-color: #e0e0e0;
-      --light-color: #3a3a3a;
       --primary-color: #6f9fdb;
       --secondary-color: #8ab4f2;
+      --dark-color: #e0e0e0;
+      --light-color: #3a3a3a;
+      --text-color: #e0e0e0;
+      --background-color: #1a1a1a;
+      --card-bg: #2d2d2d;
+      --border-color: #444;
+      --code-bg: #444;
+      --code-color: #f0f0f0;
     }
     
+    /* Base styles */
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       line-height: 1.6;
-      color: #333;
+      color: var(--text-color);
       background-color: var(--background-color);
       margin: 0;
       padding: 20px;
+    }
+    
+    /* Ensure all text elements use the theme text color */
+    p, li, ul, ol, span, div, strong, em, label, h1, h2, h3, h4, h5, h6 {
+      color: var(--text-color);
     }
     
     .container {
@@ -286,7 +302,7 @@ async function generateHtml() {
       align-items: center;
       margin-bottom: 20px;
       padding-bottom: 10px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid var(--border-color);
     }
     
     .title {
@@ -299,6 +315,28 @@ async function generateHtml() {
       display: grid;
       grid-template-columns: 2fr 1fr;
       gap: 20px;
+      align-items: start;
+    }
+    
+    .left-column {
+      height: 100%;
+      position: sticky;
+      top: 20px;
+    }
+    
+    .right-column {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .left-column .card {
+      height: calc(100vh - 140px);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .left-column .card .card-title {
+      flex-shrink: 0;
     }
     
     .card {
@@ -313,7 +351,12 @@ async function generateHtml() {
       font-size: 18px;
       font-weight: bold;
       margin-bottom: 15px;
-      color: var(--dark-color);
+      color: var(--text-color);
+    }
+    
+    /* Ensure all text in cards is visible */
+    .card p, .card li, .card ul, .card ol, .card span, .card div, .card strong {
+      color: var(--text-color);
     }
     
     .status-indicator {
@@ -338,6 +381,19 @@ async function generateHtml() {
     
     .status-details p {
       margin: 5px 0;
+      color: var(--text-color);
+    }
+    
+    .status-details strong {
+      color: var(--text-color);
+    }
+    
+    .status-details span {
+      color: var(--text-color);
+    }
+    
+    #status-text {
+      color: var(--text-color);
     }
     
     .button-group {
@@ -387,26 +443,37 @@ async function generateHtml() {
       cursor: not-allowed;
     }
     
+    .log-actions {
+      margin-top: 10px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    
     .logs {
-      height: 500px;
+      flex-grow: 1;
       overflow-y: auto;
-      background-color: #1e1e1e;
-      color: #ddd;
+      background-color: var(--light-color);
+      color: var(--text-color);
       padding: 10px;
       border-radius: 4px;
       font-family: 'Courier New', Courier, monospace;
       font-size: 14px;
+      margin-bottom: 0;
     }
     
     .log-entry {
       margin: 5px 0;
       padding: 5px;
-      border-bottom: 1px solid #333;
+      border-bottom: 1px solid var(--border-color);
     }
     
     .log-entry .timestamp {
-      color: #888;
+      color: var(--secondary-color);
       margin-right: 10px;
+    }
+    
+    .log-entry .message {
+      color: var(--text-color);
     }
     
     .log-entry .type {
@@ -428,7 +495,7 @@ async function generateHtml() {
     
     .log-entry .warning {
       background-color: var(--warning-color);
-      color: black;
+      color: #333;
     }
     
     .log-entry .success {
@@ -436,30 +503,43 @@ async function generateHtml() {
       color: white;
     }
     
-    .log-actions {
-      margin-top: 10px;
-      text-align: right;
+    code {
+      background-color: var(--code-bg);
+      color: var(--code-color);
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: 'Courier New', Courier, monospace;
     }
     
-    @media (max-width: 768px) {
-      .dashboard {
-        grid-template-columns: 1fr;
-      }
+    .invalid-feedback {
+      color: var(--danger-color);
+      margin-top: 5px;
+      font-size: 14px;
     }
-  </style>
-</head>
-<body>
-  <style>
+    
+    #connection-status {
+      color: var(--text-color);
+    }
+    
+    /* Form styles */
     .form-group {
       margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      color: var(--text-color);
+      display: block;
+      margin-bottom: 5px;
     }
     
     .form-control {
       width: 100%;
       padding: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--border-color);
       border-radius: 4px;
       margin-top: 5px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
     }
     
     .feedback {
@@ -470,9 +550,32 @@ async function generateHtml() {
       font-weight: bold;
       transition: all 0.3s ease;
     }
-    .feedback.success { background: #d4edda; color: #155724; }
-    .feedback.error { background: #f8d7da; color: #721c24; }
+    
+    .feedback.success {
+      background: var(--success-color);
+      color: white;
+    }
+    
+    .feedback.error {
+      background: var(--danger-color);
+      color: white;
+    }
+    
+    /* Information section specific styles */
+    .information p,
+    .information li,
+    .information code {
+      color: var(--text-color);
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
+</head>
+<body>
   <div class="container">
     <div class="header">
       <div class="title">MCP Config Watcher</div>
@@ -544,7 +647,7 @@ async function generateHtml() {
           </form>
         </div>
 
-        <div class="card">
+        <div class="card information">
           <div class="card-title">Information</div>
           <p>This dashboard allows you to control the MCP Config Watcher service that monitors your MCP settings file and automatically updates the markdown documentation.</p>
           <p><strong>CLI Commands:</strong></p>
@@ -697,7 +800,7 @@ async function generateHtml() {
       function showFeedback(message, isSuccess) {
         const feedback = document.getElementById('config-feedback');
         feedback.textContent = message;
-        feedback.className = \`feedback \${isSuccess ? 'success' : 'error'}\`;
+        feedback.className = 'feedback ' + (isSuccess ? 'success' : 'error');
         feedback.style.display = 'block';
         
         // Hide feedback after 5 seconds
@@ -771,7 +874,7 @@ async function generateHtml() {
       timestamp.textContent = new Date(log.timestamp).toLocaleTimeString();
 
       const type = document.createElement('span');
-      type.className = \`type \${log.type}\`;
+      type.className = 'type ' + log.type;
       type.textContent = log.type.toUpperCase();
 
       const message = document.createElement('span');

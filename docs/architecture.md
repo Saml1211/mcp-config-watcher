@@ -133,6 +133,22 @@ mcp-config-watcher/
 
 The Parser maintains a mapping of known MCP servers to their tools in the `buildServerToolsMap()` method. This mapping is used to associate servers with their available tools.
 
+### MCP Tool Discovery
+
+The tool discovery process uses a multi-layered approach to identify available tools:
+
+1. **JSON-RPC Protocol**: Primary method that sends a standard JSON-RPC 2.0 request with method `tools/list` to the MCP server
+2. **Server Output Parsing**: When direct JSON-RPC fails, parses server output for tool definitions using multiple pattern matching techniques
+3. **Auto-Approved Tools**: Falls back to the auto-approved tools list from the server configuration
+4. **AI Prediction**: Optionally uses AI to predict tools when both direct methods fail
+
+The discovery process includes several patterns for identifying tools in server output:
+- Standard JSON-RPC response format
+- OpenAI function format
+- Tools array format
+- Line-by-line JSON parsing
+- Function declaration detection
+
 ### Safe Documentation Update
 
 The Markdown Generator uses a sophisticated algorithm to update the documentation without overwriting user-added content:

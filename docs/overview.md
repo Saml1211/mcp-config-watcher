@@ -16,6 +16,8 @@ The primary purpose of the MCP Config Watcher is to:
 ## Key Features
 
 - **Real-time monitoring** of the MCP settings file
+- **Direct tool discovery** using standard JSON-RPC protocol
+- **Multi-pattern parsing** for maximum compatibility with different MCP server implementations
 - **Safe update mechanism** that preserves user-added content
 - **Visual highlighting** of auto-approved tools
 - **Comprehensive tool information** with descriptions
@@ -27,8 +29,9 @@ The MCP Config Watcher consists of several key components:
 
 1. **File Watcher**: Monitors the MCP settings file for changes
 2. **Parser**: Extracts server and tool information from the settings
-3. **Markdown Generator**: Creates and updates the documentation
-4. **Service Manager**: Coordinates the components and handles events
+3. **Tool Discovery**: Identifies available tools from MCP servers using JSON-RPC and other techniques
+4. **Markdown Generator**: Creates and updates the documentation
+5. **Service Manager**: Coordinates the components and handles events
 
 ## Technology Stack
 

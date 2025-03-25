@@ -9,8 +9,9 @@ Automatically generate documentation for your MCP (Model Context Protocol) serve
 - 🖥️ **Multiple Interfaces**: CLI, Web Dashboard, and System Tray access
 - 🔧 **Highly Configurable**: Customize paths, update frequency, and more
 - 💡 **Comprehensive Tool Descriptions**: Includes detailed descriptions for all MCP tools
-- 🧠 **AI-Powered Tool Discovery**: Automatically identifies tools for new MCP servers
-- 🔍 **Smart Server Matching**: Matches similar servers to provide accurate tool information
+- 🔍 **Advanced Tool Discovery**: Uses JSON-RPC protocol to communicate with MCP servers
+- 🧩 **Multi-Pattern Compatibility**: Compatible with various MCP server implementations
+- 🧠 **AI-Powered Fallback**: Uses AI to predict tools when direct discovery fails (optional)
 
 ## Installation
 
@@ -68,10 +69,21 @@ service:
   # Log file location (leave empty for console only)
   logFile: ""
 
+# Discovery settings
+discovery:
+  # Enable direct tool discovery
+  enabled: true
+  # Timeout for server queries (milliseconds)
+  timeout: 10000
+  # Cache discovery results
+  cache: true
+
 # AI settings (optional)
 ai:
   # Enable AI-powered tool discovery
-  enabled: true
+  enabled: false
+  # Use AI as fallback when direct discovery fails
+  fallbackToAi: true
   # OpenAI configuration
   openai:
     # API key (or use OPENAI_API_KEY environment variable)
@@ -80,9 +92,6 @@ ai:
   cache:
     enabled: true
     maxAge: 86400000  # 24 hours in milliseconds
-  # Fallback settings
-  fallback:
-    enabled: true     # Generate fallback tools if none found
 ```
 
 ## Usage
@@ -138,53 +147,37 @@ await service.stop();
 1. The watcher monitors your MCP settings file for changes
 2. When changes are detected, it parses the MCP server configurations
 3. It identifies tools for each server using:
-   - Known tool mappings
-   - Auto-approved tools from settings
-   - Similar server matching
-   - AI-powered tool discovery (if enabled)
+   - JSON-RPC protocol to query the MCP server (primary method)
+   - Multi-pattern parsing of server output for various formats
+   - Auto-approved tools from settings (fallback)
+   - AI-powered tool discovery (optional fallback)
 4. It generates a markdown file with comprehensive documentation of all servers and their tools
 5. The documentation includes detailed descriptions of each tool's functionality and server configuration details
 
 ## AI Integration
 
-MCP Config Watcher includes optional AI-powered tool discovery using OpenAI. This feature helps:
+MCP Config Watcher includes optional AI-powered tool discovery using OpenAI as a fallback mechanism when direct discovery fails. This feature helps:
 
-- Automatically identify tools for new or unknown MCP servers
-- Generate descriptions for tools not in the static database
-- Provide more accurate documentation for your MCP servers
+- Provide fallback tool identification when direct server querying fails
+- Generate descriptions for tools not in the static database 
+- Support legacy servers that don't implement direct tool discovery
 
-### Enabling AI Integration
-
-To enable AI integration, run the upgrade script:
-
-```bash
-# Make the script executable (if needed)
-chmod +x bin/upgrade-ai.js
-
-# Run the upgrade script
-./bin/upgrade-ai.js
-```
-
-The script will:
-1. Install the OpenAI package if needed
-2. Help you configure your OpenAI API key
-3. Update your config.yml file with AI settings
-
-### AI Configuration
+### AI Fallback Configuration
 
 You can configure the AI integration in the `config.yml` file:
 
 ```yaml
 ai:
-  enabled: true                # Enable/disable AI features
+  enabled: false               # Enable/disable AI features
+  fallbackToAi: true           # Use AI when direct discovery fails
   openai:
     apiKey: "${OPENAI_API_KEY}" # API key or environment variable
   cache:
     enabled: true              # Enable caching to reduce API calls
     maxAge: 86400000           # Cache lifetime in milliseconds (24h)
-  fallback:
-    enabled: true              # Generate fallback tools if none found
 ```
+
+By default, AI is disabled but will be used as a fallback if enabled. Direct tool discovery is the preferred method.
 
 ## Interfaces
 
@@ -211,6 +204,15 @@ The system tray application will provide:
 - Status indicator in your system tray
 - Quick access to common actions
 - Notifications for updates and errors
+
+## Documentation
+
+- [Overview](docs/overview.md): General overview of the project
+- [Architecture](docs/architecture.md): Technical architecture and component breakdown
+- [Usage Guide](docs/usage-guide.md): Detailed usage instructions
+- [API Reference](docs/api-reference.md): Programmatic API documentation
+- [Tool Discovery](docs/tool-discovery.md): Technical details about the MCP tool discovery mechanism
+- [Implementation Plan](docs/implementation-plan.md): Development roadmap
 
 ## License
 

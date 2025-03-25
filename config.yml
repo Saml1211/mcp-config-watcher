@@ -1,6 +1,6 @@
 paths:
-  settings: "C:\Users\SamLyndon\AppData\Roaming\Code\User\globalStorage\rooveterinaryinc.roo-cline\settings\cline_mcp_settings.json"
-  markdown: "C:\Users\SamLyndon\Desktop\cline_mcp_settings.md"
+  settings: /Users/samlyndon/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json
+  markdown: /Users/samlyndon/Projects/repos/custom/mcp_servers_and_tools.md
 watcher:
   pollInterval: 1000
   awaitWriteFinish:
@@ -15,3 +15,10 @@ notifications:
   enabled: true
   onSuccess: true
   onError: true
+discovery:
+  enabled: true
+  timeout: 10000
+  cache: true
+ai:
+  enabled: false
+  fallbackToAi: true
